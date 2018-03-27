@@ -598,6 +598,8 @@ int main(int argc, char **argv) {
                      CurrentTime) == GrabSuccess) {
       break;
     }
+    Log("Failed to grab pointer - see /var/log/Xorg.*.log.");
+    system("xdotool key XF86LogGrabInfo");
     nanosleep(&(const struct timespec){0, 100000000L}, NULL);
   }
   if (retries < 0) {
@@ -609,6 +611,8 @@ int main(int argc, char **argv) {
                       GrabModeAsync, CurrentTime) == GrabSuccess) {
       break;
     }
+    Log("Failed to grab keyboard - see /var/log/Xorg.*.log.");
+    system("xdotool key XF86LogGrabInfo");
     nanosleep(&(const struct timespec){0, 100000000L}, NULL);
   }
   if (retries < 0) {
