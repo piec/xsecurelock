@@ -592,31 +592,36 @@ int main(int argc, char **argv) {
   // Acquire all grabs we need. Retry in case the window manager is still
   // holding some grabs while starting XSecureLock.
   int retries;
+  int grab_status;
   for (retries = 10; retries >= 0; --retries) {
-    if (XGrabPointer(display, parent_window, False, ALL_POINTER_EVENTS,
-                     GrabModeAsync, GrabModeAsync, None, coverattrs.cursor,
-                     CurrentTime) == GrabSuccess) {
+    grab_status = XGrabPointer(display, parent_window, False,
+                               ALL_POINTER_EVENTS, GrabModeAsync, GrabModeAsync,
+                               None, coverattrs.cursor, CurrentTime);
+    if (grab_status == GrabSuccess) {
       break;
     }
-    Log("Failed to grab pointer - see /var/log/Xorg.*.log.");
+    Log("Failed to grab pointer - see /var/log/Xorg.*.log. Own PID is %d",
+        (int)getpid());
     system("xdotool key XF86LogGrabInfo");
     nanosleep(&(const struct timespec){0, 100000000L}, NULL);
   }
   if (retries < 0) {
-    Log("Could not grab pointer");
+    Log("Could not grab pointer; status: %d", grab_status);
     return 1;
   }
   for (retries = 10; retries >= 0; --retries) {
-    if (XGrabKeyboard(display, parent_window, False, GrabModeAsync,
-                      GrabModeAsync, CurrentTime) == GrabSuccess) {
+    grab_status = XGrabKeyboard(display, parent_window, False, GrabModeAsync,
+                                GrabModeAsync, CurrentTime);
+    if (grab_status == GrabSuccess) {
       break;
     }
-    Log("Failed to grab keyboard - see /var/log/Xorg.*.log.");
+    Log("Failed to grab keyboard - see /var/log/Xorg.*.log. Own PID is %d",
+        (int)getpid());
     system("xdotool key XF86LogGrabInfo");
     nanosleep(&(const struct timespec){0, 100000000L}, NULL);
   }
   if (retries < 0) {
-    Log("Could not grab keyboard");
+    Log("Could not grab keyboard; status: %d", grab_status);
     return 1;
   }
 
